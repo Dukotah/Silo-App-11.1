@@ -792,13 +792,33 @@ export function App() {
       ),
       pageContent,
       e('div',{style:{marginTop:20,textAlign:'center',fontFamily:"'DM Mono',monospace",fontSize:8,color:'#151e30',letterSpacing:'0.12em'}},'SILO v11 · PRIVATE · ZERO-KNOWLEDGE · ALL DATA LOCAL')
-    ),
-
-    e('nav',{style:{position:'fixed',bottom:0,left:0,right:0,zIndex:200,background:'rgba(6,9,16,0.96)',borderTop:'1px solid #0f1520',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',paddingBottom:'env(safe-area-inset-bottom,0px)'}},
-      e('div',{style:{maxWidth:680,margin:'0 auto',display:'flex',padding:'8px 8px 10px'}},\n        TABS.map(function(tb){\n          var on=tab===tb.id;\n          return e('button',{key:tb.id,onClick:function(){setTab(tb.id);},style:{flex:1,padding:'8px 4px 4px',background:'transparent',border:'none',display:'flex',flexDirection:'column',alignItems:'center',gap:2,cursor:'pointer',minHeight:44}},\n            e('span',{style:{fontSize:18,filter:on?'drop-shadow(0 0 6px '+tier.glow+')':'none',color:on?tier.color:'#2d3748',transition:'all 0.2s'}},tb.glyph),\n            e('span',{style:mn(7,on?'#e2e8f0':'#2d3748',{fontWeight:on?600:400,transition:'all 0.2s'})},tb.label)\n          );\n        })\n      )\n    )\n  );\n}\n```
-
----
-
-### Critical Review: Blindspots
-
-* **Forced Routine Persistence:** Since the `useEffect` trigger listens closely to `state.tasks`, manually deleting a populated library item using the `×` button will immediately prompt the loop to re-add it. If your intent is to allow tasks to be cleared permanently or dismissed per individual day, an array parameter mapping `dismissedTasks` would need to be added to your underlying data module (`useCoreEngine.js`).
+ e('nav', {
+      style: {
+        position: 'fixed',
+        bottom: 0,
+        left: 0,
+        right: 0,
+        zIndex: 200,
+        background: 'rgba(6,9,16,0.96)',
+        borderTop: '1px solid #0f1520',
+        backdropFilter: 'blur(16px)',
+        WebkitBackdropFilter: 'blur(16px)',
+        paddingBottom: 'env(safe-area-inset-bottom,0px)'
+      }
+    },
+      e('div', { style: { maxWidth: 680, margin: '0 auto', display: 'flex', padding: '8px 8px 10px' } },
+        TABS.map(function(tb) {
+          var on = tab === tb.id;
+          return e('button', {
+            key: tb.id,
+            onClick: function() { setTab(tb.id); },
+            style: { flex: 1, padding: '8px 4px 4px', background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, cursor: 'pointer', minHeight: 44 }
+          },
+            e('span', { style: { fontSize: 18, filter: on ? 'drop-shadow(0 0 6px ' + tier.glow + ')' : 'none', color: on ? tier.color : '#2d3748', transition: 'all 0.2s' } }, tb.glyph),
+            e('span', { style: mn(7, on ? '#e2e8f0' : '#2d3748', { fontWeight: on ? 600 : 400, transition: 'all 0.2s' }) }, tb.label)
+          );
+        })
+      )
+    )
+  );
+}
