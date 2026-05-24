@@ -23,13 +23,12 @@ function c2(t,a,b) { return t ? a : b; }
 
 // ─── GLOBAL CSS ───────────────────────────────────────────────────────────────
 var CSS =
-  "@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght=300;400;500;600&family=DM+Sans:wght=300;400;500;600;700&display=swap');" +
+  "@import url('https://fonts.googleapis.com/css2?family=DM+Mono:wght@300;400;500;600&family=DM+Sans:wght@300;400;500;600;700&display=swap');" +
   "*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}" +
   "html,body,#root{height:100%;background:#060910}" +
   "body{overscroll-behavior:none;-webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}" +
   "::-webkit-scrollbar{width:3px}::-webkit-scrollbar-thumb{background:#1a2d4a;border-radius:2px}" +
   "textarea,input{outline:none}button{cursor:pointer;border:none;background:none;padding:0}" +
-  // animations
   "@keyframes fadeUp{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}" +
   "@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.3}}" +
   "@keyframes scaleIn{from{opacity:0;transform:scale(0.88)}to{opacity:1;transform:scale(1)}}" +
@@ -60,11 +59,9 @@ function CoreEntity(props) {
   var lv=props.level, t=props.tier, pct=props.xpPct, decay=props.decay, burst=props.burst;
   var kids=[];
 
-  // XP arc
   var arcR=44, arcC=2*Math.PI*arcR, off=arcC*(1-Math.min(pct,100)/100);
   var glowMult = decay ? 0.35 : 1;
 
-  // Aura rings (reduced during decay)
   for (var ri=0; ri<Math.min(lv,6); ri++) {
     kids.push(e('circle',{key:'r'+ri,cx:'100',cy:'100',r:String(52+ri*15),fill:'none',stroke:t.color,strokeWidth:'0.7',
       opacity:(Math.max(0.03,0.1-ri*0.015)*glowMult).toFixed(3),
@@ -76,14 +73,12 @@ function CoreEntity(props) {
     opacity:String(0.85*glowMult),strokeDasharray:String(arcC.toFixed(1)),strokeDashoffset:String(off.toFixed(1)),
     strokeLinecap:'round',style:{transform:'rotate(-90deg)',transformOrigin:'100px 100px',transition:'stroke-dashoffset 1s ease'}}));
 
-  // Body
   kids.push(e('circle',{key:'b0',cx:'100',cy:'100',r:'28',fill:t.color,opacity:String(0.07*glowMult)}));
   kids.push(e('circle',{key:'b1',cx:'100',cy:'100',r:'18',fill:t.color,opacity:String(0.15*glowMult),
     style:{animation:'pulse 2s ease-in-out infinite'+(decay?' paused':'')}}));
   kids.push(e('circle',{key:'b2',cx:'100',cy:'100',r:'8',fill:t.color,opacity:String(decay?0.3:0.9),
     style:{animation:decay?'decayFlicker 2.5s ease-in-out infinite':'pulse 1.5s ease-in-out infinite'}}));
 
-  // Spokes
   var spokes=Math.min(lv*2,12);
   for (var si=0;si<spokes;si++){
     var ang=(si/spokes)*Math.PI*2;
@@ -93,7 +88,6 @@ function CoreEntity(props) {
       stroke:t.color,strokeWidth:'1',opacity:String((0.3+lv*0.04)*(decay?0.3:1))}));
   }
 
-  // Orbiting nodes at higher levels
   if (lv>=4) {
     var orbs=Math.min(lv-2,8);
     for (var oi=0;oi<orbs;oi++){
@@ -103,10 +97,9 @@ function CoreEntity(props) {
     }
   }
 
-  // ── AMBIENT PARTICLES (orbit via animateTransform) ───────────────────────
   var particleCount = decay ? Math.max(2, Math.floor(Math.min(lv*2,18)*0.4)) : Math.min(lv*3, 28);
   for (var pi=0; pi<particleCount; pi++) {
-    var pRadius = 55 + (pi%3)*14;          // 55 / 69 / 83
+    var pRadius = 55 + (pi%3)*14;
     var pSize   = decay ? 0.8 : (1.2+(pi%3)*0.5);
     var pOpacity= (0.15+(pi%5)*0.07) * (decay?0.25:1);
     var pSpeed  = decay ? (18+(pi%6)*5) : (7+(pi%8)*2);
@@ -120,7 +113,6 @@ function CoreEntity(props) {
     ));
   }
 
-  // ── BURST RING ───────────────────────────────────────────────────────────
   cond(burst, kids.push(
     e('circle',{key:'burst',cx:'100',cy:'100',r:'22',fill:'none',stroke:t.color,strokeWidth:'3',opacity:'1',
       style:{animation:'burstRing 0.7s ease-out forwards',transformOrigin:'100px 100px'}})
@@ -213,7 +205,6 @@ function ActionSuggestion(props) {
   var suggestions=SIGNAL_SUGGESTIONS[props.signal];
   var done=props.completedToday||{};
   var suggestion=suggestions.find(function(s){return !done[s.taskId];})||suggestions[0];
-  var tc=TASK_CATS.mind;
   return e('div',{style:{background:'#080b12',border:'1px solid #1a3a2a',borderRadius:12,padding:'12px 14px',marginTop:8,animation:'slideDown 0.3s ease',position:'relative'}},
     e('button',{onClick:function(){setDismissed(true);},style:{position:'absolute',top:8,right:10,background:'transparent',border:'none',color:'#2d3748',fontSize:14,cursor:'pointer'}},'×'),
     e('div',{style:mn(8,'#22c55e',{letterSpacing:'0.2em',marginBottom:6})},'◆ NEXT RECOMMENDED ACTION'),
@@ -230,7 +221,7 @@ function FreezeModal(props) {
       e('div',{style:{fontSize:32,marginBottom:12}},'❄'),
       e('div',{style:mn(10,'#a0d8ef',{letterSpacing:'0.25em',marginBottom:10})},'STREAK INTERRUPTED'),
       e('div',{style:{fontSize:15,fontWeight:700,color:'#e2e8f0',marginBottom:8}},'Protect your '+props.streak+'-day streak?'),
-      e('div',{style:{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:20}},'You missed a day. Use a freeze token to restore your streak. You have '+props.tokens+' token'+(props.tokens===1?'':' s')+' remaining.'),
+      e('div',{style:{fontSize:12,color:'#475569',lineHeight:1.6,marginBottom:20}},'You missed a day. Use a freeze token to restore your streak. You have '+props.tokens+' token'+(props.tokens===1?'':'s')+' remaining.'),
       e('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10}},
         e('button',{onClick:props.onDismiss,style:{padding:'12px',background:'transparent',border:'1px solid #151e30',borderRadius:10,fontSize:10,color:'#475569',fontFamily:"'DM Mono',monospace",cursor:'pointer'}},'LET IT BREAK'),
         e('button',{onClick:props.onUse,style:{padding:'12px',background:'rgba(160,216,239,0.1)',border:'1px solid #a0d8ef',borderRadius:10,fontSize:10,color:'#a0d8ef',fontFamily:"'DM Mono',monospace",fontWeight:700,cursor:'pointer'}},'USE TOKEN ❄')
@@ -409,7 +400,7 @@ function WeeklyInsightBanner(props) {
   var s1=useState(false); var dismissed=s1[0],setDismissed=s1[1];
   var log=state.log||[], taskLog=state.taskLog||[];
   if(dismissed||log.length<5) return null;
-  // Compute last-7-days stats
+
   var days={};
   var now=new Date();
   for(var di=6;di>=0;di--){var d=new Date(now);d.setDate(d.getDate()-di);days[d.toISOString().slice(0,10)]={signals:[],tasks:0};}
@@ -417,15 +408,18 @@ function WeeklyInsightBanner(props) {
   taskLog.forEach(function(t){if(days[t.date])days[t.date].tasks++;});
   var activeDays=Object.values(days).filter(function(d){return d.signals.length>0||d.tasks>0;}).length;
   if(activeDays<3) return null;
+
   var totals={HEAVY:0,HEAT:0,CLEAR:0,REFLECTIVE:0};
   log.forEach(function(e2){if(days[e2.date]&&e2.primaryShift)totals[e2.primaryShift]++;});
   var dom=null,topN=0;
   Object.keys(totals).forEach(function(k){if(totals[k]>topN){topN=totals[k];dom=k;}});
   var totalTasks=Object.values(days).reduce(function(s,d){return s+d.tasks;},0);
+
   var SHIFT_LABELS={HEAVY:'Heavy / Stress',HEAT:'Turbulent',CLEAR:'Clear / Focus',REFLECTIVE:'Reflective'};
   var SHIFT_COLORS={HEAVY:'#f97316',HEAT:'#ef4444',CLEAR:'#22c55e',REFLECTIVE:'#4a9eff'};
   var signalText=dom?('Dominant signal: '+SHIFT_LABELS[dom]):'Mixed signal week';
   var signalColor=dom?SHIFT_COLORS[dom]:'#94a3b8';
+
   return e('div',{style:{background:'#080b12',border:'1px solid #1e3a5f',borderRadius:12,padding:'11px 14px',marginBottom:12,animation:'slideDown 0.3s ease',position:'relative'}},
     e('button',{onClick:function(){setDismissed(true);},style:{position:'absolute',top:8,right:10,background:'transparent',border:'none',color:'#2d3748',fontSize:14,cursor:'pointer'}},'×'),
     e('div',{style:mn(8,'#4a9eff',{letterSpacing:'0.2em',marginBottom:6})},'◇ WEEKLY SIGNAL SUMMARY'),
@@ -441,10 +435,9 @@ function WeeklyInsightBanner(props) {
 function PatternIntelligenceCard(props) {
   var log=props.log||[], taskLog=props.taskLog||[];
   if(log.length<6||taskLog.length<4) return null;
-  // Build day buckets (last 30 days)
+
   var dayMap={};
-  var cutoff=new Date();
-  cutoff.setDate(cutoff.getDate()-30);
+  var cutoff=new Date(); cutoff.setDate(cutoff.getDate()-30);
   log.forEach(function(e2){
     if(new Date(e2.date)<cutoff) return;
     if(!dayMap[e2.date]) dayMap[e2.date]={signals:[],tasks:0};
@@ -455,45 +448,54 @@ function PatternIntelligenceCard(props) {
     if(!dayMap[t.date]) dayMap[t.date]={signals:[],tasks:0};
     dayMap[t.date].tasks++;
   });
+
   var allDays=Object.values(dayMap).filter(function(d){return d.signals.length>0;});
   if(allDays.length<6) return null;
   var highDays=allDays.filter(function(d){return d.tasks>=3;});
   var lowDays=allDays.filter(function(d){return d.tasks<=1;});
   if(highDays.length<2||lowDays.length<2) return null;
-  function clearPct(ds){var total=ds.reduce(function(s,d){return s+d.signals.length;},0);var clear=ds.reduce(function(s,d){return s+d.signals.filter(function(x){return x==='CLEAR';}).length;},0);return total>0?Math.round((clear/total)*100):0;}
+
+  function clearPct(ds){
+    var total=ds.reduce(function(s,d){return s+d.signals.length;},0);
+    var clear=ds.reduce(function(s,d){return s+d.signals.filter(function(x){return x==='CLEAR'||x==='REFLECTIVE';}).length;},0);
+    return total>0?Math.round((clear/total)*100):0;
+  }
   var hp=clearPct(highDays), lp=clearPct(lowDays);
   if(Math.abs(hp-lp)<15) return null;
-  var highEfficient=hp>lp;
+
   return e('div',{style:card},
-    e('div',{style:cardH},e('span',{style:mn(9,'#a78bfa',{fontWeight:700})},'◆ PATTERN INTELLIGENCE')),
-    e('div',{style:{padding:'12px 14px',fontSize:12,lineHeight:1.5,color:'#94a3b8'}},
-      highEfficient
-        ? ('Focus alignment verified: days with 3+ completed tasks demonstrate a '+hp+'% higher density of CLEAR focus signals than low-output days.')
-        : ('Inversion anomaly detected: days with higher core task volume register lower focus resonance ('+hp+'% vs '+lp+'%). Consider reducing complexity constraints.')
+    e('div',{style:cardH},e('span',{style:mn(9,'#22c55e',{fontWeight:700})},'◆ PATTERN INTELLIGENCE')),
+    e('div',{style:{padding:'12px 14px',fontSize:12,lineHeight:1.6,color:'#94a3b8'}},
+      hp>lp
+        ?('Core analysis matches performance output. Your action metrics rise by '+Math.abs(hp-lp)+'% on days synchronized with CLEAR or REFLECTIVE high-order waves.')
+        :('Anomalous alignment detected. Production output remains elevated by '+Math.abs(lp-hp)+'% on dense signal days, suggesting friction-induced performance vectors.')
     )
   );
 }
 
 // ─── HOME TAB ─────────────────────────────────────────────────────────────────
 function HomeTab(props) {
-  var s=props.state,engine=props.engine;
+  var engine=props.engine, s=props.state;
   var level=getLevelFromXP(s.totalXP||0);
   var tier=getTier(level);
-  var mx=Math.max(s.statBody||0,s.statMind||0,s.statSoul||0,1);
-  var stats={body:s.statBody||0,mind:s.statMind||0,soul:s.statSoul||0};
-  var streak=s.streak||0;
-  var lvlXP=s.totalXP?getLvlXP(s.totalXP):0;
-  var pct=Math.round((lvlXP/props.XPL)*100);
+  var pct=getLvlXP(s.totalXP||0);
   var burst=props.burst;
+
+  var stats={body:0,mind:0,soul:0};
+  var mx=240;
+  (s.taskLog||[]).forEach(function(l){if(stats[l.cat]!==undefined)stats[l.cat]=Math.min(stats[l.cat]+Math.round(l.xp*0.2),mx);});
+
+  var streak=s.streak||0;
   var todayTasks=Object.keys(s.completedToday||{}).length;
   var unlocked=s.unlockedAchievements||[];
   var s1=useState(false); var showAch=s1[0],setShowAch=s1[1];
+
   var nextMil=null;
   var milestones=[{days:1,label:'First Hold'},{days:3,label:'3-Day Lock'},{days:7,label:'One Week'},{days:14,label:'Fortnight'},{days:30,label:'30-Day Protocol'},{days:60,label:'Signal Silence'}];
   for(var i=0;i<milestones.length;i++){if(milestones[i].days>streak){nextMil=milestones[i];break;}}
+
   return e('div',{style:{display:'flex',flexDirection:'column',animation:'fadeUp 0.35s ease'}},
     e(AchievementsModal,{open:showAch,onClose:function(){setShowAch(false);},unlocked:unlocked}),
-    // Decay banner
     cond(engine.decayActive, e('div',{style:{background:'rgba(71,85,105,0.12)',border:'1px solid #1e2a3a',borderRadius:12,padding:'10px 14px',marginBottom:12,display:'flex',alignItems:'center',gap:10}},
       e('div',{style:{fontSize:16}},'◯'),
       e('div',{style:{flex:1}},
@@ -501,9 +503,7 @@ function HomeTab(props) {
         e('div',{style:{fontSize:10,color:'#2d3748',fontFamily:"'DM Mono',monospace"}},'No activity detected in 2+ days. Take an action to restore signal.')
       )
     )),
-    // Weekly insight
     e(WeeklyInsightBanner,{state:s}),
-    // Core Entity hero
     e('div',{style:Object.assign({},card,{background:'linear-gradient(145deg,#0a0e1a,#0d1220)'})},
       e('div',{style:cardH},
         e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'CORE ENTITY'),
@@ -518,15 +518,14 @@ function HomeTab(props) {
           e('div',{style:{fontSize:17,fontWeight:700,color:'#e2e8f0',marginBottom:3,fontFamily:"'DM Mono',monospace"}},'Level '+level),
           e('div',{style:{fontSize:12,color:'#475569',marginBottom:14,lineHeight:1.5}},tier.desc),
           e('div',{style:{marginBottom:12}},
-            e('div',{style:row({justifyContent:'space-between',marginBottom:4})},e('span',{style:mn(8,'#2d3748')},'FORM XP'),e('span',{style:mn(8,tier.color)},lvlXP+'/'+props.XPL)),
+            e('div',{style:row({justifyContent:'space-between',marginBottom:4})},e('span',{style:mn(8,'#2d3748')},'FORM XP'),e('span',{style:mn(8,tier.color)},props.lvlXP+'/'+props.XPL)),
             e('div',{style:{height:5,background:'#0f1520',borderRadius:3,overflow:'hidden'}},e('div',{style:{height:'100%',width:pct+'%',background:tier.color,borderRadius:3,transition:'width 1s ease',boxShadow:'0 0 8px '+tier.glow}})),
-            e('div',{style:mn(8,'#2d3748',{marginTop:3})},level<24?(props.XPL-lvlXP)+' XP to next level':'MAXIMUM FORM')
+            e('div',{style:mn(8,'#2d3748',{marginTop:3})},level<24?(props.XPL-props.lvlXP)+' XP to next level':'MAXIMUM FORM')
           ),
           e('div',{style:row({gap:8})},e(StatBar,{label:'BODY',val:stats.body,max:mx,color:'#22c55e'}),e(StatBar,{label:'MIND',val:stats.mind,max:mx,color:'#4a9eff'}),e(StatBar,{label:'SOUL',val:stats.soul,max:mx,color:'#f97316'}))
         )
       )
     ),
-    // Status strip
     e('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr 1fr',gap:10,marginBottom:12}},
       [{label:'STREAK',val:streak+'d'+(s.freezeTokens?' ❄'+s.freezeTokens:''),color:'#f97316'},{label:'TASKS TODAY',val:todayTasks,color:'#22c55e'},{label:'TOTAL XP',val:s.totalXP||0,color:tier.color}].map(function(item){
         return e('div',{key:item.label,style:{background:'#0a0e1a',border:'1px solid #151e30',borderRadius:12,padding:'12px 14px'}},
@@ -535,9 +534,7 @@ function HomeTab(props) {
         );
       })
     ),
-    // Weekly challenge
     e(WeeklyChallengeCard,{state:s}),
-    // Evolution track
     e('div',{style:card},
       e('div',{style:cardH},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'EVOLUTION TRACK')),
       e('div',{style:{padding:'12px 14px',display:'flex',gap:5}},
@@ -552,52 +549,85 @@ function HomeTab(props) {
         })
       )
     ),
-    // Next milestone
     e('div',{style:Object.assign({},card,{padding:'13px 15px'})},
       e('div',{style:row({justifyContent:'space-between',marginBottom:8})},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'NEXT MILESTONE'),e('span',{style:mn(9,'#2d3748')},streak+'d streak')),
-      nextMil?e('div',null,e('div',{style:{fontSize:14,fontWeight:700,color:'#e2e8f0',marginBottom:5}},nextMil.label),e('div',{style:{height:4,background:'#0f1520',borderRadius:2,overflow:'hidden'}},e('div',{style:{height:'100%',width:Math.min((streak/nextMil.days)*100,100)+'%',background:'#4a9eff',borderRadius:2,transition:'width 0.4s'}}))) : null
-    )
+      nextMil?e('div',null,e('div',{style:{fontSize:14,fontWeight:700,color:'#e2e8f0',marginBottom:5}},nextMil.label),e('div',{style:{height:4,background:'#0f1520',borderRadius:2,overflow:'hidden'}},e('div',{style:{height:'100%',width:Math.min((streak/nextMil.days)*100,100)+'%',background:'#4a9eff',borderRadius:2}}))):e('div',{style:{fontSize:12,color:'#22c55e',fontWeight:600}},'ALL MILESTONES SECURED')
+    ),
+    e('div',{style:row({justifyContent:'center',padding:10})},e('button',{onClick:function(){setShowAch(true);},style:mn(9,'#4a9eff',{cursor:'pointer',textDecoration:'underline'})},'VIEW ACQUIRED BADGES ('+unlocked.length+')'))
   );
 }
 
-// ─── JOURNAL TAB ──────────────────────────────────────────────────────────────
+// ─── JOURNAL TAB (with Commit functionality) ──────────────────────────────────
 function JournalTab(props) {
-  var engine=props.engine,s=props.state;
-  var entries=s.log||[];
+  var engine=props.engine, s=props.state;
   var s1=useState(''); var text=s1[0],setText=s1[1];
-  var s2=useState(null); var expanded=s2[0],setExpanded=s2[1];
-  var s3=useState(null); var toast=s3[0],setToast=s3[1];
-  var s4=useState(1); var toastMult=s4[0],setToastMult=s4[1];
-  var s5=useState(false); var isBurning=s5[0],setIsBurning=s5[1];
+  var s2=useState(null); var toast=s2[0],setToast=s2[1];
+  var s3=useState(1); var toastMult=s3[0],setToastMult=s3[1];
+  var s4=useState(null); var expanded=s4[0],setExpanded=s4[1];
   var timerRef=useRef(null);
+
   useEffect(function(){return function(){if(timerRef.current)clearTimeout(timerRef.current);};},[]);
-  function handleCommit() {
-    if(!text.trim()||isBurning)return;
-    var analysis=parse(text);
+
+  function onAction(type) {
+    if(!text.trim()) return;
     var mult=engine.isFirstActionToday?2:1;
-    var savedNode=engine.logSignal(text,analysis);
-    if(timerRef.current)clearTimeout(timerRef.current);
-    setToast(savedNode);
-    setToastMult(mult);
+    var metrics=parse(text);
+    var pShift=metrics.primaryShift;
+    var SHIFT_LABELS={HEAVY:'Heavy / Stress',HEAT:'Turbulent',CLEAR:'Clear / Focus',REFLECTIVE:'Reflective'};
+    var SHIFT_COLORS={HEAVY:'#f97316',HEAT:'#ef4444',CLEAR:'#22c55e',REFLECTIVE:'#4a9eff'};
+
+    var pack={
+      action:type,
+      text:text,
+      wordCount:metrics.wordCount,
+      xp:metrics.xp*mult,
+      primaryShift:pShift,
+      shiftLabel:pShift?SHIFT_LABELS[pShift]:'Ambient Wave',
+      shiftColor:pShift?SHIFT_COLORS[pShift]:'#4a9eff'
+    };
+
+    engine.logJournal(pack);
     setText('');
-    timerRef.current=setTimeout(function(){setToast(null);},4000);
+    props.triggerBurst();
+
+    if(timerRef.current)clearTimeout(timerRef.current);
+    setToast(pack);
+    setToastMult(mult);
+    timerRef.current=setTimeout(function(){setToast(null);},4500);
   }
-  var wordCount=text.trim()?text.trim().split(/\s+/).length:0;
+
+  var metrics=parse(text);
   var SHIFT_COLORS={HEAVY:'#f97316',HEAT:'#ef4444',CLEAR:'#22c55e',REFLECTIVE:'#4a9eff'};
-  return e('div',{style:{display:'flex',flexDirection:'column',gap:12,animation:'fadeUp 0.35s ease'}},
-    e('div',{style:Object.assign({},card,{position:'relative',overflow:'visible',animation:isBurning?'burnOut 0.8s ease forwards':'none'})},
-      e('div',{style:cardH},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'TRANSMISSION INPUT LAYER'),e('span',{style:mn(9,wordCount>=20?'#22c55e':'#2d3748')},wordCount+' WORDS')),
-      e('div',{style:{padding:14,background:'#080b12',position:'relative'}},
-        e('textarea',{value:text,onChange:function(ev){setText(ev.target.value);},placeholder:'Enter raw processing notes, structural blocks, or cognitive shifts...',style:{width:'100%',minHeight:140,background:'transparent',border:'none',fontSize:13,color:'#e2e8f0',fontFamily:"'DM Sans',sans-serif",lineHeight:1.6,resize:'none'}}),
-        e('div',{style:row({justifyContent:'space-between',alignItems:'center',marginTop:10,borderTop:'1px solid #0a0d14',paddingTop:12})},
-          e('div',{style:{fontSize:11,color:'#2d3748',fontFamily:"'DM Mono',monospace"}},wordCount<20?'MINIMUM RESOLUTION GAP':'MATRIX CALIBRATED'),
-          e('div',{style:row({gap:8})},
-            e('button',{onClick:handleCommit,disabled:wordCount<20,style:{padding:'9px 20px',background:wordCount<20?'#0a0d14':'#0a1628',border:'1px solid '+(wordCount<20?'#0f1520':'#1e3a5f'),borderRadius:10,fontSize:10,color:wordCount<20?'#2d3748':'#4a9eff',fontFamily:"'DM Mono',monospace",fontWeight:700,letterSpacing:'0.1em',cursor:wordCount<20?'default':'pointer',transition:'all 0.2s'}},'COMMIT')
-          )
-        )
+  var entries=s.log||[];
+
+  return e('div',{style:{animation:'fadeUp 0.35s ease'}},
+    e('div',{style:card},
+      e('div',{style:cardH},
+        e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'SECURE TRANSACTION ENTRY'),
+        e('span',{style:mn(8,'#2d3748')},'LOCAL INSTANCE')
       ),
-      e(ActionSuggestion,{signal:entries[0]?entries[0].primaryShift:null,completedToday:s.completedToday})
+      e('div',{style:{padding:16,background:'#070a12'}},
+        e('textarea',{
+          value:text,
+          onChange:function(ev){setText(ev.target.value);},
+          placeholder:'Log metrics, stream consciousness, or analyze patterns...',
+          style:{width:'100%',height:130,background:'transparent',border:'none',resize:'none',fontSize:14,color:'#e2e8f0',lineHeight:1.7,fontFamily:"'DM Sans',sans-serif"}
+        }),
+        e('div',{style:row({justifyContent:'space-between',borderTop:'1px solid #0f1520',paddingTop:12,marginTop:8})},
+          e('div',{style:row({gap:12})},
+            e('div',null,e('div',{style:mn(7,'#2d3748',{marginBottom:2})},'WORDS'),e('div',{style:{fontSize:11,fontWeight:700,fontFamily:"'DM Mono',monospace",color:'#94a3b8'}},metrics.wordCount)),
+            e('div',null,e('div',{style:mn(7,'#2d3748',{marginBottom:2})},'VALUEVector'),e('div',{style:{fontSize:11,fontWeight:700,fontFamily:"'DM Mono',monospace",color:'#22c55e'}},'+'+(metrics.xp*(engine.isFirstActionToday?2:1))+' XP')),
+            cond(metrics.primaryShift,e('div',null,e('div',{style:mn(7,'#2d3748',{marginBottom:2})},'WAVE'),e('div',{style:{fontSize:10,fontWeight:700,fontFamily:"'DM Mono',monospace",color:SHIFT_COLORS[metrics.primaryShift]}},metrics.primaryShift)))
+          ),
+          e('button',{
+            onClick:function(){onAction('commit');},
+            disabled:!text.trim(),
+            style:{padding:'10px 22px',background:text.trim()?'#0a1628':'#080c14',border:'1px solid '+(text.trim()?'#1e3a5f':'#0f1520'),borderRadius:10,color:text.trim()?'#4a9eff':'#2d3748',fontFamily:"'DM Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:'0.15em',cursor:text.trim()?'pointer':'default',transition:'all 0.15s'}
+          },'◆ COMMIT')
+        )
+      )
     ),
+    e(ActionSuggestion,{signal:entries[0]?entries[0].primaryShift:null,completedToday:s.completedToday}),
     e('div',{style:card},
       e('div',{style:cardH},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'TRANSMISSION LOG'),e('span',{style:mn(9,'#2d3748')},entries.length+' ENTRIES')),
       entries.length===0
@@ -624,22 +654,36 @@ function JournalTab(props) {
 function TasksTab(props) {
   var engine=props.engine,state=props.state;
   var tasks=state.tasks||[];
-  var completedToday=state.completedToday||{}, completedWeek=state.completedWeek||{}, completedOnce=state.completedOnce||{};
+  var completedToday=state.completedToday||{}, completedWeek=state.completedWeek||{};
   var taskLog=state.taskLog||[];
+
   var s1=useState(false); var showModal=s1[0],setShowModal=s1[1];
   var s2=useState(null); var toastTask=s2[0],setToastTask=s2[1];
   var s3=useState(1); var toastMult=s3[0],setToastMult=s3[1];
   var timerRef=useRef(null);
+
   useEffect(function(){return function(){if(timerRef.current)clearTimeout(timerRef.current);};},[]);
-  function doLog(task){var mult=engine.isFirstActionToday?2:1;engine.logTask(task);if(timerRef.current)clearTimeout(timerRef.current);setToastTask(task);setToastMult(mult);timerRef.current=setTimeout(function(){setToastTask(null);},2200);}
+
+  function doLog(task){
+    var mult=engine.isFirstActionToday?2:1;
+    engine.logTask(task);
+    if(timerRef.current)clearTimeout(timerRef.current);
+    setToastTask(task);
+    setToastMult(mult);
+    timerRef.current=setTimeout(function(){setToastTask(null);},2200);
+  }
+
   var dailyTasks=tasks.filter(function(t){return t.freq==='daily';});
   var weeklyTasks=tasks.filter(function(t){return t.freq==='weekly';});
   var onceTasks=tasks.filter(function(t){return t.freq==='once';});
+
   var doneToday=dailyTasks.filter(function(t){return completedToday[t.id];}).length;
   var totalDaily=dailyTasks.length;
   var doneWeekly=weeklyTasks.filter(function(t){return completedWeek[t.id];}).length;
+
   var todayXP=taskLog.filter(function(l){return l.date===new Date().toISOString().slice(0,10);}).reduce(function(s,l){return s+l.xp;},0);
   var existingIds=tasks.map(function(t){return t.id;});
+
   function section(title,items,compMap){
     if(!items.length) return null;
     var doneCount=items.filter(function(t){return compMap[t.id];}).length;
@@ -648,22 +692,25 @@ function TasksTab(props) {
       e('div',null,items.map(function(task){return e(TaskItem,{key:task.id,task:task,done:!!(compMap[task.id]),taskLog:taskLog,onLog:doLog,onDelete:function(id){engine.deleteTask(id);}});}))
     );
   }
+
   return e('div',{style:{animation:'fadeUp 0.35s ease'}},
     e(TaskCreateModal,{open:showModal,onClose:function(){setShowModal(false);},onCreate:engine.createTask,existingIds:existingIds}),
     e('div',{style:{display:'grid',gridTemplateColumns:'1fr 1fr',gap:10,marginBottom:12}},
-      e('div',{style:{background:'#0a0e1a',border:'1px solid #151e30',borderRadius:12,padding:'12px 14px'}},
-        e('div',{style:mn(7,'#2d3748',{marginBottom:5})},'PROTOCOL XP TODAY'),
-        e('div',{style:{fontSize:15,fontWeight:700,color:'#22c55e',fontFamily:"'DM Mono',monospace",lineHeight:1}},'+'+todayXP+' XP')
+      e('div',{style:{background:'#0a0e1a',border:'1px solid #151e30',borderRadius:12,padding:'11px 14px'}},
+        e('div',{style:mn(7,'#2d3748',{marginBottom:4})},'DAILY PERFORMANCE'),
+        e('div',{style:{fontSize:15,fontWeight:700,fontFamily:"'DM Mono',monospace",color:'#22c55e'}},totalDaily>0?Math.round((doneToday/totalDaily)*100)+'%':'0%'),
+        e('div',{style:mn(7,'#475569',{marginTop:1})},doneToday+' / '+totalDaily+' tasks mapped')
       ),
-      e('button',{onClick:function(){setShowModal(true);},style:{background:'#0a1628',border:'1px solid #1e3a5f',borderRadius:12,padding:'12px 14px',display:'flex',flexDirection:'column',justifyContent:'center',textAlign:'left',cursor:'pointer',transition:'border 0.2s'}},
-        e('div',{style:mn(7,'#4a9eff',{marginBottom:5})},'INITIALIZE OBJECTIVE'),
-        e('div',{style:{fontSize:12,fontWeight:700,color:'#e2e8f0',fontFamily:"'DM Mono',monospace",lineHeight:1}},'+ ADD OPERATIVE TASK')
+      e('div',{style:{background:'#0a0e1a',border:'1px solid #151e30',borderRadius:12,padding:'11px 14px'}},
+        e('div',{style:mn(7,'#2d3748',{marginBottom:4})},'TASK GAIN TODAY'),
+        e('div',{style:{fontSize:15,fontWeight:700,fontFamily:"'DM Mono',monospace",color:'#4a9eff'}},'+'+todayXP),
+        e('div',{style:mn(7,'#475569',{marginTop:1})},'XP integration value')
       )
     ),
-    e(PatternIntelligenceCard,{log:state.log,taskLog:state.taskLog}),
-    section('DAILY PROTOCOLS',dailyTasks,completedToday),
-    section('WEEKLY CHALLENGES',weeklyTasks,completedWeek),
-    section('SEQUENTIAL TARGETS',onceTasks,completedOnce),
+    section('DAILY ITERATIONS', dailyTasks, completedToday),
+    section('WEEKLY RECURSIONS', weeklyTasks, completedWeek),
+    section('NON-RECURRING PROTOCOLS', onceTasks, state.completedOnce||{}),
+    e('button',{onClick:function(){setShowModal(true);},style:{width:'100%',padding:'14px',background:'#080c14',border:'1px dashed #1e3a5f',borderRadius:12,color:'#4a9eff',fontFamily:"'DM Mono',monospace",fontSize:11,fontWeight:700,letterSpacing:'0.12em',cursor:'pointer',transition:'all 0.2s'}},'+ INJECT PROTOCOL WAVE'),
     e(TaskToast,{task:toastTask,mult:toastMult,onClose:function(){setToastTask(null);}})
   );
 }
@@ -671,82 +718,40 @@ function TasksTab(props) {
 // ─── SIGNALS TAB ──────────────────────────────────────────────────────────────
 function SignalsTab(props) {
   var s=props.state;
-  var log=s.log||[];
-  var totals={HEAVY:0,HEAT:0,CLEAR:0,REFLECTIVE:0};
-  log.forEach(function(e2){if(e2.primaryShift)totals[e2.primaryShift]++;});
-  var max=Math.max(totals.HEAVY,totals.HEAT,totals.CLEAR,totals.REFLECTIVE,1);
-  return e('div',{style:{display:'flex',flexDirection:'column',gap:12,animation:'fadeUp 0.35s ease'}},
+  return e('div',{style:{animation:'fadeUp 0.35s ease'}},
+    e(PatternIntelligenceCard,{log:s.log,taskLog:s.taskLog}),
     e('div',{style:card},
-      e('div',{style:cardH},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'SIGNAL MATRIX DENSITY')),
-      e('div',{style:{padding:'16px 14px',display:'flex',flexDirection:'column',gap:14}},
-        e(StatBar,{label:'HEAVY / OVERLOAD',val:totals.HEAVY,max:max,color:'#f97316'}),
-        e(StatBar,{label:'TURBULENT / DISTRACTED',val:totals.HEAT,max:max,color:'#ef4444'}),
-        e(StatBar,{label:'CLEAR / DEEP FOCUS',val:totals.CLEAR,max:max,color:'#22c55e'}),
-        e(StatBar,{label:'REFLECTIVE / RECOVERY',val:totals.REFLECTIVE,max:max,color:'#4a9eff'})
-      )
-    ),
-    e('div',{style:card},
-      e('div',{style:cardH},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'ANALYTIC MATRIX')),
-      e('div',{style:{padding:'14px',fontSize:12,color:'#475569',lineHeight:1.6}},
-        'System monitors micro-linguistic patterns across entries to map shifts. High distribution in clear signals accelerates engine evolution tracking.'
+      e('div',{style:cardH},e('span',{style:mn(9,'#94a3b8',{fontWeight:700})},'CYBERNETIC COGNITION INTELLIGENCE')),
+      e('div',{style:{padding:'24px 16px',textAlign:'center',color:'#2d3748',fontFamily:"'DM Mono',monospace",fontSize:11,lineHeight:1.6}},
+        'MATRIX ENGINES ACTIVE.\nCORE SIGNAL ANALYSIS SYNCED UPON HIGH-LEVEL TRANSMISSION INGESTION.'
       )
     )
   );
 }
 
-// ─── ROOT APP COMPONENT ───────────────────────────────────────────────────────
-export function App() {
+// ─── MAIN APPLICATION SHELL ───────────────────────────────────────────────────
+export default function App() {
+  return e(CoreProvider, null, e(AppInner));
+}
+
+function AppInner() {
   var engine = useCoreEngine();
-  var s1 = useState('HOME'); var tab=s1[0],setTab=s1[1];
-  var s2 = useState(false); var burst=s2[0],setBurst=s2[1];
-  var prevXp = useRef(0);
+  var s1 = useState('HOME'); var tab=s1[0], setTab=s1[1];
+  var s2 = useState(false); var burst=s2[0], setBurst=s2[1];
+  var s3 = useState(false); var showFreezeModal=s3[0], setShowFreezeModal=s3[1];
+
+  function triggerBurst(){ setBurst(true); setTimeout(function(){setBurst(false);},750); }
 
   useEffect(function(){
-    var styleEl=document.createElement('style');
-    styleEl.innerHTML=CSS;
-    document.head.appendChild(styleEl);
-    return function(){document.head.removeChild(styleEl);};
-  },[]);
-
-  var loaded=engine.loaded,state=engine.state;
-  var level=state?getLevelFromXP(state.totalXP||0):1;
-
-  // ─── SYSTEM AUTOMATION: AUTO-POPULATE LIBRARY DAILY PROTOCOLS ─────
-  React.useEffect(function() {
-    if (!loaded || !state) return;
-    
-    var activeTasks = state.tasks || [];
-    
-    if (TASK_TEMPLATES && TASK_TEMPLATES.length > 0) {
-      TASK_TEMPLATES.forEach(function(templateItem) {
-        // Only trigger protocol templates set to a 'daily' constraint loop
-        if (templateItem.freq !== 'daily') return;
-
-        // Verify uniqueness to avoid stack overflows or double instantiations
-        var alreadyAdded = activeTasks.some(function(t) {
-          return t.id === templateItem.id || t.name === templateItem.name;
-        });
-        
-        // Push raw configuration into the localized database thread instantly
-        if (!alreadyAdded) {
-          engine.createTask(Object.assign({}, templateItem));
-        }
-      });
+    if(engine.loaded && engine.state && engine.state.freezeRequired) {
+      setShowFreezeModal(true);
     }
-  }, [loaded, state ? state.tasks : null]);
-  // ───────────────────────────────────────────────────────────────────
+  }, [engine.loaded, engine.state]);
 
-  var tier=getTier(level);
-  var xp=state?(state.totalXP||0):0;
-
-  useEffect(function(){
-    if(!loaded||!state)return;
-    if(prevXp.current && xp>prevXp.current){
-      setBurst(true);
-      var t2=setTimeout(function(){setBurst(false);},750);
-    }
-    prevXp.current=xp;
-  },[xp,loaded,state]);
+  var loaded = engine.loaded, state = engine.state;
+  var level = state ? getLevelFromXP(state.totalXP||0) : 1;
+  var tier = getTier(level);
+  var lvlXP = state ? getLvlXP(state.totalXP||0) : 0;
 
   if(!loaded){
     return e('div',{style:{minHeight:'100vh',background:'#060910',display:'flex',alignItems:'center',justifyContent:'center',flexDirection:'column',gap:16}},
@@ -757,65 +762,43 @@ export function App() {
   }
 
   var pageContent;
-  if (tab==='HOME') pageContent=e(HomeTab, {state:state,engine:engine,XPL:engine.XPL,burst:burst});
-  else if(tab==='JOURNAL') pageContent=e(JournalTab,{state:state,engine:engine});
+  if (tab==='HOME') pageContent=e(HomeTab, {state:state,engine:engine,XPL:XPL(level),lvlXP:lvlXP,burst:burst,triggerBurst:triggerBurst});
+  else if(tab==='JOURNAL') pageContent=e(JournalTab,{state:state,engine:engine,triggerBurst:triggerBurst});
   else if(tab==='TASKS') pageContent=e(TasksTab, {state:state,engine:engine});
   else pageContent=e(SignalsTab, {state:state,engine:engine});
 
   return e('div',{style:{minHeight:'100vh',background:'#060910',color:'#e2e8f0',fontFamily:"'DM Sans',sans-serif"}},
     e('style',null,CSS),
-    e(EvolveModal,{tier:engine.evolution,onClose:engine.clearEvolution}),
-    e(FreezeModal,{open:engine.freezeAvailable,streak:state.streak||0,tokens:state.freezeTokens||0,useToken:engine.useFreezeToken,onDismiss:engine.dismissFreeze}),
-    e(AchievementToast,{data:engine.newAchievement,onClose:engine.clearAchievement}),
-    
-    e('header',{style:{position:'sticky',top:0,zIndex:100,background:'rgba(6,9,16,0.85)',backdropFilter:'blur(12px)',WebkitBackdropFilter:'blur(12px)',borderBottom:'1px solid #0f1520',padding:'14px 16px'}},
-      e('div',{style:{maxWidth:680,margin:'0 auto',display:'flex',alignItems:'center',justifyContent:'space-between'}},
-        e('div',{style:row({gap:10})},
-          e('div',{style:{width:8,height:8,borderRadius:'50%',background:tier.color,boxShadow:'0 0 8px '+tier.glow}}),
-          e('h1',{style:mn(11,'#e2e8f0',{fontWeight:600,letterSpacing:'0.18em'})},'SILO')
+    e(EvolveModal,{tier:engine.evolution,onClose:function(){engine.clearEvolution();}}),
+    e(AchievementToast,{data:engine.achievementUnlocked,onClose:function(){engine.clearAchievement();}}),
+    e(FreezeModal,{
+      open:showFreezeModal,
+      streak:state.streak||0,
+      tokens:state.freezeTokens||0,
+      onUse:function(){engine.resolveFreeze(true); setShowFreezeModal(false);},
+      onDismiss:function(){engine.resolveFreeze(false); setShowFreezeModal(false);}
+    }),
+    e('div',{style:{maxWidth:680,margin:'0 auto',padding:'24px 16px 100px',animation:'fadeUp 0.4s ease'}},
+      e('div',{style:row({justifyContent:'space-between',marginBottom:28,borderBottom:'1px solid #0f1520',paddingBottom:16})},
+        e('div',null,
+          e('div',{style:mn(11,'#e2e8f0',{fontWeight:700,letterSpacing:'0.2em'})},'S I L O'),
+          e('div',{style:mn(7,'#475569',{marginTop:2})},'SYSTEM LOGICAL OPERATIVE')
         ),
-        e('button',{onClick:function(){setTab('HOME');},style:mn(9,tier.color,{fontWeight:600,background:'rgba(255,255,255,0.02)',border:'1px solid #151e30',borderRadius:8,padding:'6px 12px'}),onMouseEnter:function(ev){ev.currentTarget.style.borderColor=tier.color;},onMouseLeave:function(ev){ev.currentTarget.style.borderColor='#151e30';}},
-          'LV '+level
+        e('div',{style:{textAlign:'right'}},
+          e('div',{style:mn(8,tier.color,{fontWeight:700})},'SECURE NODE ACTIVE'),
+          e('div',{style:mn(7,'#2d3748',{marginTop:3})},new Date().toISOString().slice(0,10)+' // CORE_v11')
         )
-      )
-    ),
-
-    e('main',{style:{maxWidth:680,margin:'0 auto',padding:'20px 16px 100px'}},
-      e('div',{style:{display:'flex',gap:6,marginBottom:20,borderBottom:'1px solid #0f1520',paddingBottom:12}},
-        TABS.map(function(tb){
-          var on=tab===tb.id;
-          return e('button',{key:tb.id,onClick:function(){setTab(tb.id);},style:{padding:'8px 16px',background:on?'#0a1220':'transparent',border:'1px solid '+(on?'#1e3a5f':'#0f1520'),borderRadius:10,fontSize:10,color:on?'#4a9eff':'#475569',fontFamily:"'DM Mono',monospace",fontWeight:on?600:400,letterSpacing:'0.05em',cursor:'pointer',transition:'all 0.2s',minHeight:44}},
-            e('span',{style:{fontSize:14}},tb.glyph),
-            tb.label.toUpperCase()
-          );
-        })
       ),
       pageContent,
       e('div',{style:{marginTop:20,textAlign:'center',fontFamily:"'DM Mono',monospace",fontSize:8,color:'#151e30',letterSpacing:'0.12em'}},'SILO v11 · PRIVATE · ZERO-KNOWLEDGE · ALL DATA LOCAL')
- e('nav', {
-      style: {
-        position: 'fixed',
-        bottom: 0,
-        left: 0,
-        right: 0,
-        zIndex: 200,
-        background: 'rgba(6,9,16,0.96)',
-        borderTop: '1px solid #0f1520',
-        backdropFilter: 'blur(16px)',
-        WebkitBackdropFilter: 'blur(16px)',
-        paddingBottom: 'env(safe-area-inset-bottom,0px)'
-      }
-    },
-      e('div', { style: { maxWidth: 680, margin: '0 auto', display: 'flex', padding: '8px 8px 10px' } },
-        TABS.map(function(tb) {
-          var on = tab === tb.id;
-          return e('button', {
-            key: tb.id,
-            onClick: function() { setTab(tb.id); },
-            style: { flex: 1, padding: '8px 4px 4px', background: 'transparent', border: 'none', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 2, cursor: 'pointer', minHeight: 44 }
-          },
-            e('span', { style: { fontSize: 18, filter: on ? 'drop-shadow(0 0 6px ' + tier.glow + ')' : 'none', color: on ? tier.color : '#2d3748', transition: 'all 0.2s' } }, tb.glyph),
-            e('span', { style: mn(7, on ? '#e2e8f0' : '#2d3748', { fontWeight: on ? 600 : 400, transition: 'all 0.2s' }) }, tb.label)
+    ),
+    e('nav',{style:{position:'fixed',bottom:0,left:0,right:0,zIndex:200,background:'rgba(6,9,16,0.96)',borderTop:'1px solid #0f1520',backdropFilter:'blur(16px)',WebkitBackdropFilter:'blur(16px)',paddingBottom:'env(safe-area-inset-bottom,0px)'}},
+      e('div',{style:{maxWidth:680,margin:'0 auto',display:'flex',padding:'8px 8px 10px'}},
+        TABS.map(function(tb){
+          var on=tab===tb.id;
+          return e('button',{key:tb.id,onClick:function(){setTab(tb.id);},style:{flex:1,padding:'8px 4px 4px',background:'transparent',border:'none',display:'flex',flexDirection:'column',alignItems:'center',gap:2,cursor:'pointer',minHeight:44}},
+            e('span',{style:{fontSize:18,filter:on?'drop-shadow(0 0 6px '+tier.glow+')':'none',color:on?tier.color:'#2d3748',transition:'all 0.2s'}},tb.glyph),
+            e('span',{style:mn(7,on?'#e2e8f0':'#2d3748',{fontWeight:on?600:400,transition:'all 0.2s'})},tb.label)
           );
         })
       )
